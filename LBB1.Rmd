@@ -1,0 +1,127 @@
+---
+title: "LBB Kafani Irawan"
+author: "Kafani Irawan"
+date: '2022-04-27'
+output:
+  html_document:
+    toc: yes
+    toc_depth: 2
+    theme: darkly
+    highlight: espresso
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## R Markdown{.smaller .build}
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+Hi! Welcome to my Rmd :)
+in this LBB i will use previous data which is Retail.csv
+I hope you enjoy it !
+
+## Input Data
+```{r}
+
+retail <- read.csv("retail.csv")
+```
+
+## Data Inspection
+```{r}
+
+head(retail)
+tail(retail)
+dim(retail)
+names(retail)
+
+
+
+```
+kesimpulan:
+1. data retail terdiri dari 9994 baris dan 15 kolom
+2. nama dari masing-masing kolom yaitu 
+ [1] "Row.ID"       "Order.ID"     "Order.Date"   "Ship.Date"   
+ [5] "Ship.Mode"    "Customer.ID"  "Segment"      "Product.ID"  
+ [9] "Category"     "Sub.Category" "Product.Name" "Sales"       
+[13] "Quantity"     "Discount"     "Profit"    
+
+## Data Cleansing and Coertions{.tabset}
+### Check for Missing Value{.tabset}
+```{r}
+colSums(is.na(retail))
+anyNA(retail)
+
+```
+Kesimpulan:
+1. Tidak ada missing value pada data retail.csv dengan pengecekan menggunakan colsums
+2. Tidak ada missing value pada data retail.csv dengan pengecekan menggunakan anyNA
+
+
+### Manipulating Data
+
+```{r}
+head(retail)
+retail$Row.ID <- as.character(retail$Row.ID)
+retail$Ship.Date <- as.Date(retail$Ship.Date, format = "%m/%d/%y")
+retail$Order.Date <- as.Date(retail$Ship.Date, format = "%m/%d/%y")
+retail$Ship.Mode <-  as.factor(retail$Ship.Mode)
+retail$Segment <- as.factor(retail$Segment)
+retail$Category <- as.factor(retail$Category)
+retail$Sub.Category <- as.factor(retail$Sub.Category)
+retail$Product.Name <- as.factor(retail$Product.Name)
+
+str(retail)
+head(retail)
+
+retail <- retail[,c(3:15)]
+retail$selisih <- difftime(retail$Ship.Date, retail$Order.Date, units = "day")
+head(retail)
+retail$selisih <- as.integer(retail$selisih)
+
+```
+
+
+### Data Explanation
+```{r}
+summary(retail)
+View(retail)
+```
+```{r}
+#Untuk melihat rincian masing-masing Category berdasarkan Sub Category
+table_category <- table(retail$Category, retail$Sub.Category)
+table_category
+
+```
+
+```{r}
+#Untuk melihat Segment berdasarkan mode pengiriman
+contoh_table <- table(retail$Segment, retail$Ship.Mode)
+contoh_table
+
+#untuk melihat profit yang dihasilkan dari masing-masing Segment
+jumlah <- aggregate(formula = Profit~Segment, data = retail, FUN = sum)
+jumlah
+```
+
+```{r}
+#Untuk melihat rata-rata profit dari masing-masing segment
+avg_cons <- aggregate(formula = Profit~Segment, data = retail, FUN = mean)
+avg_cons
+
+```
+
+Kesimpulan
+1. Pesanan pertama kali pada 2014
+2. Mode pengiriman yang paling populer adalah standard class, sementara yang paling tidak populer ada pengiriman dengan mode Same Day
+3. 3 Sub Category yang paling banyak dibeli dari category office supplies adalah Binders, Paper dan Storage
+4. 3 Sub Category yang paling banyak dibeli dari category Furniture adalah Furnishings, chairs dan tables
+5. Segment yang paling banyak menghasilkan profit secara total adalah Segment Consumer, walaupun secara rata-rata, profit yang dihasilkan dari Segment Consumer lebih rendah dari Segment Corporate dan Segment Home Office.
+
+
